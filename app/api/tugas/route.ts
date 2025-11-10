@@ -56,7 +56,14 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const mataKuliahId = searchParams.get("mataKuliahId");
-    const status = searchParams.get("status");
+    const statusParam = searchParams.get("status");
+
+    // Validate status parameter
+    const validStatuses = ["BELUM_DIKERJAKAN", "DIKERJAKAN", "SELESAI"];
+    const status =
+      statusParam && validStatuses.includes(statusParam)
+        ? (statusParam as "BELUM_DIKERJAKAN" | "DIKERJAKAN" | "SELESAI")
+        : undefined;
 
     const whereClause = {
       mataKuliah: {

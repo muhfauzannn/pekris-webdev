@@ -40,7 +40,7 @@ import { authenticateRequest, createErrorResponse } from "@/app/lib/middleware";
  */
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const apiKeyId = await authenticateRequest(request);
   if (!apiKeyId) {
@@ -48,9 +48,10 @@ export async function GET(
   }
 
   try {
+    const { id } = await params;
     const tugas = await prisma.tugas.findUnique({
       where: {
-        id: params.id,
+        id: id,
       },
       include: {
         mataKuliah: {
@@ -143,7 +144,7 @@ export async function GET(
  */
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const apiKeyId = await authenticateRequest(request);
   if (!apiKeyId) {
@@ -151,6 +152,7 @@ export async function PUT(
   }
 
   try {
+    const { id } = await params;
     const body = await request.json();
     const { nama, deskripsi, deadline, status } = body;
 
@@ -166,7 +168,7 @@ export async function PUT(
     // Verify tugas belongs to the API key
     const existingTugas = await prisma.tugas.findUnique({
       where: {
-        id: params.id,
+        id: id,
       },
       include: {
         mataKuliah: {
@@ -183,7 +185,7 @@ export async function PUT(
 
     const updatedTugas = await prisma.tugas.update({
       where: {
-        id: params.id,
+        id: id,
       },
       data: {
         nama,
@@ -251,7 +253,7 @@ export async function PUT(
  */
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const apiKeyId = await authenticateRequest(request);
   if (!apiKeyId) {
@@ -259,10 +261,11 @@ export async function DELETE(
   }
 
   try {
+    const { id } = await params;
     // Verify tugas belongs to the API key
     const existingTugas = await prisma.tugas.findUnique({
       where: {
-        id: params.id,
+        id: id,
       },
       include: {
         mataKuliah: {
@@ -279,7 +282,7 @@ export async function DELETE(
 
     await prisma.tugas.delete({
       where: {
-        id: params.id,
+        id: id,
       },
     });
 

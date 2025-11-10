@@ -71,29 +71,10 @@ export default function ApiDocsPage() {
             >
               🔑 Generate API Key
             </Link>
-            <a
-              href="https://github.com/yourusername/pekris-webdev/blob/main/QUICK_START.md"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-md transition-colors font-medium"
-            >
-              🚀 Quick Start Guide
-            </a>
-            <a
-              href="/api/swagger"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="bg-gray-600 hover:bg-gray-700 text-white px-6 py-2 rounded-md transition-colors font-medium"
-            >
-              📄 OpenAPI JSON
-            </a>
           </div>
 
           <div className="mt-6 max-w-4xl mx-auto">
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
-              <h3 className="text-lg font-semibold text-blue-900 mb-3">
-                💡 Getting Started
-              </h3>
               <ol className="list-decimal list-inside space-y-2 text-blue-800">
                 <li>Generate an API key from the homepage</li>
                 <li>

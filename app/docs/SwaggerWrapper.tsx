@@ -23,16 +23,21 @@ console.warn = (...args) => {
 
 const SwaggerUIWrapper: React.FC<SwaggerUIWrapperProps> = (props) => {
   // Use dynamic import to avoid strict typing issues
-  const [SwaggerComponent, setSwaggerComponent] =
-    React.useState<React.ComponentType<SwaggerUIWrapperProps> | null>(null);
+  const [isLoaded, setIsLoaded] = React.useState(false);
+  const SwaggerUIRef = React.useRef<React.ComponentType<
+    Record<string, unknown>
+  > | null>(null);
 
   React.useEffect(() => {
     import("swagger-ui-react").then((module) => {
-      setSwaggerComponent(() => module.default);
+      SwaggerUIRef.current = module.default as React.ComponentType<
+        Record<string, unknown>
+      >;
+      setIsLoaded(true);
     });
   }, []);
 
-  if (!SwaggerComponent) {
+  if (!isLoaded || !SwaggerUIRef.current) {
     return (
       <div className="flex justify-center items-center h-64">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
@@ -40,7 +45,7 @@ const SwaggerUIWrapper: React.FC<SwaggerUIWrapperProps> = (props) => {
     );
   }
 
-  return React.createElement(SwaggerComponent, props);
+  return React.createElement(SwaggerUIRef.current, props);
 };
 
 export default SwaggerUIWrapper;

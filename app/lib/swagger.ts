@@ -21,10 +21,6 @@ const options: swaggerJSDoc.Options = {
     ],
     tags: [
       {
-        name: "Authentication",
-        description: "API key management endpoints",
-      },
-      {
         name: "Mata Kuliah",
         description: "Mata kuliah management endpoints",
       },

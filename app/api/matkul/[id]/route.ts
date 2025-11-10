@@ -40,7 +40,7 @@ import { authenticateRequest, createErrorResponse } from "@/app/lib/middleware";
  */
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const apiKeyId = await authenticateRequest(request);
   if (!apiKeyId) {
@@ -48,9 +48,10 @@ export async function GET(
   }
 
   try {
+    const { id } = await params;
     const mataKuliah = await prisma.mataKuliah.findUnique({
       where: {
-        id: params.id,
+        id: id,
         apiKeyId: apiKeyId,
       },
       include: {
@@ -142,7 +143,7 @@ export async function GET(
  */
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const apiKeyId = await authenticateRequest(request);
   if (!apiKeyId) {
@@ -150,6 +151,7 @@ export async function PUT(
   }
 
   try {
+    const { id } = await params;
     const body = await request.json();
     const { nama, deskripsi, sks } = body;
 
@@ -163,7 +165,7 @@ export async function PUT(
 
     const mataKuliah = await prisma.mataKuliah.findUnique({
       where: {
-        id: params.id,
+        id: id,
         apiKeyId: apiKeyId,
       },
     });
@@ -174,7 +176,7 @@ export async function PUT(
 
     const updatedMataKuliah = await prisma.mataKuliah.update({
       where: {
-        id: params.id,
+        id: id,
       },
       data: {
         nama,
@@ -239,7 +241,7 @@ export async function PUT(
  */
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const apiKeyId = await authenticateRequest(request);
   if (!apiKeyId) {
@@ -247,9 +249,10 @@ export async function DELETE(
   }
 
   try {
+    const { id } = await params;
     const mataKuliah = await prisma.mataKuliah.findUnique({
       where: {
-        id: params.id,
+        id: id,
         apiKeyId: apiKeyId,
       },
     });
@@ -260,7 +263,7 @@ export async function DELETE(
 
     await prisma.mataKuliah.delete({
       where: {
-        id: params.id,
+        id: id,
       },
     });
 

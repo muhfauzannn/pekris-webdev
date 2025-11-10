@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 
 export default function Home() {
   const [apiKey, setApiKey] = useState("");
@@ -42,8 +43,15 @@ export default function Home() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex w-full max-w-md flex-col items-center gap-8 p-8 bg-white dark:bg-zinc-900 rounded-lg shadow-lg">
+    <div className="flex py-10 min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
+      <main className="flex w-full justify-center max-w-md flex-col items-center gap-8 p-8 bg-white dark:bg-zinc-900 rounded-lg shadow-lg">
+        <Image
+          src="/logo.png"
+          alt="Tugas Tracker Logo"
+          width={250}
+          height={100}
+          className="mb-4"
+        />
         <div className="text-center">
           <h1 className="text-3xl font-bold text-black dark:text-white mb-2">
             Tugas Tracker API
@@ -108,31 +116,12 @@ export default function Home() {
         </div>
 
         {apiKey && (
-          <div className="w-full mt-8 p-4 bg-zinc-100 dark:bg-zinc-800 rounded-md">
-            <h3 className="font-medium text-zinc-900 dark:text-zinc-100 mb-3">
-              API Endpoints:
-            </h3>
-            <div className="space-y-2 text-sm text-zinc-600 dark:text-zinc-400">
-              <div>
-                <strong>Mata Kuliah:</strong> GET, POST /api/matkul
-              </div>
-              <div>
-                <strong>Tugas:</strong> GET, POST /api/tugas
-              </div>
-              <div>
-                <strong>Authentication:</strong> Bearer {apiKey.substring(0, 8)}
-                ...
-              </div>
-            </div>
-            <div className="mt-4 pt-4 border-t border-zinc-300 dark:border-zinc-600">
-              <a
-                href="/docs"
-                className="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-md transition-colors"
-              >
-                📚 View API Documentation
-              </a>
-            </div>
-          </div>
+          <a
+            href="/docs"
+            className="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-md transition-colors"
+          >
+            View API Documentation
+          </a>
         )}
       </main>
     </div>

@@ -1,4 +1,5 @@
 import swaggerJSDoc from "swagger-jsdoc";
+import { staticSwaggerSpec } from "./swagger-static";
 
 const options: swaggerJSDoc.Options = {
   definition: {
@@ -194,12 +195,32 @@ const options: swaggerJSDoc.Options = {
       },
     ],
   },
-  apis: [
+  apis:
     process.env.NODE_ENV === "production"
-      ? "./app/api/**/*.ts" // In production, look for compiled JS files
-      : "./app/api/**/*.ts", // In development, look for TS files
-  ],
+      ? [
+          // In production, we need to specify the built files
+          "./.next/server/app/api/health/route.js",
+          "./.next/server/app/api/matkul/route.js",
+          "./.next/server/app/api/matkul/[id]/route.js",
+          "./.next/server/app/api/tugas/route.js",
+          "./.next/server/app/api/tugas/[id]/route.js",
+          "./.next/server/app/api/stats/route.js",
+        ]
+      : [
+          // In development, use TypeScript files
+          "./app/api/health/route.ts",
+          "./app/api/matkul/route.ts",
+          "./app/api/matkul/[id]/route.ts",
+          "./app/api/tugas/route.ts",
+          "./app/api/tugas/[id]/route.ts",
+          "./app/api/stats/route.ts",
+        ],
 };
 
-const specs = swaggerJSDoc(options);
+// Use static spec in production, dynamic in development
+const specs =
+  process.env.NODE_ENV === "production"
+    ? staticSwaggerSpec
+    : swaggerJSDoc(options);
+
 export default specs;

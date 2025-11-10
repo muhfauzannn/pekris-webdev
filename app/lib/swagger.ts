@@ -15,9 +15,23 @@ const options: swaggerJSDoc.Options = {
     },
     servers: [
       {
-        url: "http://localhost:3000",
-        description: "Development server",
+        url:
+          process.env.NODE_ENV === "production"
+            ? "https://pekris-webdev.vercel.app"
+            : "http://localhost:3000",
+        description:
+          process.env.NODE_ENV === "production"
+            ? "Production server"
+            : "Development server",
       },
+      ...(process.env.NODE_ENV === "development"
+        ? [
+            {
+              url: "https://pekris-webdev.vercel.app",
+              description: "Production server",
+            },
+          ]
+        : []),
     ],
     tags: [
       {
@@ -52,41 +66,29 @@ const options: swaggerJSDoc.Options = {
             },
             key: {
               type: "string",
-              description: "The generated API key (only shown once)",
+              description: "The API key value",
             },
             name: {
               type: "string",
-              nullable: true,
               description: "Optional name for the API key",
             },
             createdAt: {
               type: "string",
               format: "date-time",
-              description: "Creation timestamp",
             },
             updatedAt: {
               type: "string",
               format: "date-time",
-              description: "Last update timestamp",
-            },
-            _count: {
-              type: "object",
-              properties: {
-                mataKuliah: {
-                  type: "integer",
-                  description:
-                    "Number of mata kuliah associated with this API key",
-                },
-              },
             },
           },
+          required: ["key"],
         },
         MataKuliah: {
           type: "object",
           properties: {
             id: {
               type: "string",
-              description: "Unique identifier for mata kuliah",
+              description: "Unique identifier for the mata kuliah",
             },
             nama: {
               type: "string",
@@ -94,17 +96,12 @@ const options: swaggerJSDoc.Options = {
             },
             deskripsi: {
               type: "string",
-              nullable: true,
               description: "Description of the mata kuliah",
             },
             sks: {
               type: "integer",
+              description: "Number of credits (SKS)",
               minimum: 1,
-              description: "SKS (Satuan Kredit Semester) value",
-            },
-            apiKeyId: {
-              type: "string",
-              description: "ID of the associated API key",
             },
             createdAt: {
               type: "string",
@@ -113,6 +110,12 @@ const options: swaggerJSDoc.Options = {
             updatedAt: {
               type: "string",
               format: "date-time",
+            },
+            tugas: {
+              type: "array",
+              items: {
+                $ref: "#/components/schemas/Tugas",
+              },
             },
             _count: {
               type: "object",
@@ -123,12 +126,6 @@ const options: swaggerJSDoc.Options = {
                 },
               },
             },
-            tugas: {
-              type: "array",
-              items: {
-                $ref: "#/components/schemas/Tugas",
-              },
-            },
           },
           required: ["nama", "sks"],
         },
@@ -137,7 +134,7 @@ const options: swaggerJSDoc.Options = {
           properties: {
             id: {
               type: "string",
-              description: "Unique identifier for tugas",
+              description: "Unique identifier for the tugas",
             },
             nama: {
               type: "string",
@@ -145,7 +142,6 @@ const options: swaggerJSDoc.Options = {
             },
             deskripsi: {
               type: "string",
-              nullable: true,
               description: "Description of the tugas",
             },
             status: {
@@ -160,7 +156,7 @@ const options: swaggerJSDoc.Options = {
             },
             mataKuliahId: {
               type: "string",
-              description: "ID of the associated mata kuliah",
+              description: "ID of the mata kuliah this tugas belongs to",
             },
             createdAt: {
               type: "string",
@@ -198,7 +194,11 @@ const options: swaggerJSDoc.Options = {
       },
     ],
   },
-  apis: ["./app/api/**/*.ts"], // Path to the API docs
+  apis: [
+    process.env.NODE_ENV === "production"
+      ? "./app/api/**/*.js" // In production, look for compiled JS files
+      : "./app/api/**/*.ts", // In development, look for TS files
+  ],
 };
 
 const specs = swaggerJSDoc(options);

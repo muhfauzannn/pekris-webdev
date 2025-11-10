@@ -1,0 +1,62 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model ApiKey {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  name      String?  // Optional name for the API key
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  mataKuliah MataKuliah[]
+
+  @@map("api_keys")
+}
+
+model MataKuliah {
+  id          String   @id @default(cuid())
+  nama        String
+  deskripsi   String?
+  sks         Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  apiKeyId    String
+  apiKey      ApiKey @relation(fields: [apiKeyId], references: [id], onDelete: Cascade)
+  tugas       Tugas[]
+
+  @@map("mata_kuliah")
+}
+
+enum StatusTugas {
+  BELUM_DIKERJAKAN
+  DIKERJAKAN
+  SELESAI
+}
+
+model Tugas {
+  id          String      @id @default(cuid())
+  nama        String
+  deskripsi   String?
+  status      StatusTugas @default(BELUM_DIKERJAKAN)
+  deadline    DateTime
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  // Relations
+  mataKuliahId String
+  mataKuliah   MataKuliah @relation(fields: [mataKuliahId], references: [id], onDelete: Cascade)
+
+  @@map("tugas")
+}

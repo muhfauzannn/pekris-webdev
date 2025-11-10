@@ -196,7 +196,7 @@ const options: swaggerJSDoc.Options = {
   },
   apis: [
     process.env.NODE_ENV === "production"
-      ? "./app/api/**/*.js" // In production, look for compiled JS files
+      ? "./app/api/**/*.ts" // In production, look for compiled JS files
       : "./app/api/**/*.ts", // In development, look for TS files
   ],
 };

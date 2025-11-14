@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server";
 import { prisma } from "@/app/lib/prisma";
 import { authenticateRequest, createErrorResponse } from "@/app/lib/middleware";
+import { addCorsHeaders, handleCorsOptions } from "@/app/lib/cors";
 
 /**
  * @swagger
@@ -44,7 +45,7 @@ export async function GET(
 ) {
   const apiKeyId = await authenticateRequest(request);
   if (!apiKeyId) {
-    return createErrorResponse("Unauthorized", 401);
+    return addCorsHeaders(createErrorResponse("Unauthorized", 401));
   }
 
   try {
@@ -69,13 +70,15 @@ export async function GET(
     });
 
     if (!mataKuliah) {
-      return createErrorResponse("Mata kuliah not found", 404);
+      return addCorsHeaders(createErrorResponse("Mata kuliah not found", 404));
     }
 
-    return Response.json(mataKuliah);
+    return addCorsHeaders(Response.json(mataKuliah));
   } catch (error) {
     console.error("Error fetching mata kuliah:", error);
-    return createErrorResponse("Failed to fetch mata kuliah", 500);
+    return addCorsHeaders(
+      createErrorResponse("Failed to fetch mata kuliah", 500)
+    );
   }
 }
 
@@ -147,7 +150,7 @@ export async function PUT(
 ) {
   const apiKeyId = await authenticateRequest(request);
   if (!apiKeyId) {
-    return createErrorResponse("Unauthorized", 401);
+    return addCorsHeaders(createErrorResponse("Unauthorized", 401));
   }
 
   try {
@@ -156,11 +159,15 @@ export async function PUT(
     const { nama, deskripsi, sks } = body;
 
     if (!nama || !sks) {
-      return createErrorResponse("Name and SKS are required", 400);
+      return addCorsHeaders(
+        createErrorResponse("Name and SKS are required", 400)
+      );
     }
 
     if (typeof sks !== "number" || sks <= 0) {
-      return createErrorResponse("SKS must be a positive number", 400);
+      return addCorsHeaders(
+        createErrorResponse("SKS must be a positive number", 400)
+      );
     }
 
     const mataKuliah = await prisma.mataKuliah.findUnique({
@@ -171,7 +178,7 @@ export async function PUT(
     });
 
     if (!mataKuliah) {
-      return createErrorResponse("Mata kuliah not found", 404);
+      return addCorsHeaders(createErrorResponse("Mata kuliah not found", 404));
     }
 
     const updatedMataKuliah = await prisma.mataKuliah.update({
@@ -192,10 +199,12 @@ export async function PUT(
       },
     });
 
-    return Response.json(updatedMataKuliah);
+    return addCorsHeaders(Response.json(updatedMataKuliah));
   } catch (error) {
     console.error("Error updating mata kuliah:", error);
-    return createErrorResponse("Failed to update mata kuliah", 500);
+    return addCorsHeaders(
+      createErrorResponse("Failed to update mata kuliah", 500)
+    );
   }
 }
 
@@ -245,7 +254,7 @@ export async function DELETE(
 ) {
   const apiKeyId = await authenticateRequest(request);
   if (!apiKeyId) {
-    return createErrorResponse("Unauthorized", 401);
+    return addCorsHeaders(createErrorResponse("Unauthorized", 401));
   }
 
   try {
@@ -258,7 +267,7 @@ export async function DELETE(
     });
 
     if (!mataKuliah) {
-      return createErrorResponse("Mata kuliah not found", 404);
+      return addCorsHeaders(createErrorResponse("Mata kuliah not found", 404));
     }
 
     await prisma.mataKuliah.delete({
@@ -267,9 +276,17 @@ export async function DELETE(
       },
     });
 
-    return Response.json({ message: "Mata kuliah deleted successfully" });
+    return addCorsHeaders(
+      Response.json({ message: "Mata kuliah deleted successfully" })
+    );
   } catch (error) {
     console.error("Error deleting mata kuliah:", error);
-    return createErrorResponse("Failed to delete mata kuliah", 500);
+    return addCorsHeaders(
+      createErrorResponse("Failed to delete mata kuliah", 500)
+    );
   }
+}
+
+export async function OPTIONS() {
+  return handleCorsOptions();
 }

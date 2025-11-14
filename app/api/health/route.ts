@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { createCorsResponse, handleCorsOptions } from "@/app/lib/cors";
 
 /**
  * @swagger
@@ -30,11 +30,15 @@ import { NextResponse } from "next/server";
  *                   description: Server uptime in seconds
  */
 export async function GET() {
-  return NextResponse.json({
+  return createCorsResponse({
     status: "healthy",
     timestamp: new Date().toISOString(),
     version: "1.0.0",
     uptime: process.uptime(),
     environment: process.env.NODE_ENV || "development",
   });
+}
+
+export async function OPTIONS() {
+  return handleCorsOptions();
 }

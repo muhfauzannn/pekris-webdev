@@ -2,6 +2,7 @@ import { NextRequest } from "next/server";
 import { prisma } from "@/app/lib/prisma";
 import { generateRawApiKey } from "@/app/lib/auth";
 import bcrypt from "bcryptjs";
+import { addCorsHeaders, handleCorsOptions } from "@/app/lib/cors";
 
 export async function POST(request: NextRequest) {
   try {
@@ -21,17 +22,18 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    return Response.json({
-      id: apiKey.id,
-      key: rawKey, // Return raw key to user (this is the only time they'll see it)
-      name: apiKey.name,
-      createdAt: apiKey.createdAt,
-    });
+    return addCorsHeaders(
+      Response.json({
+        id: apiKey.id,
+        key: rawKey, // Return raw key to user (this is the only time they'll see it)
+        name: apiKey.name,
+        createdAt: apiKey.createdAt,
+      })
+    );
   } catch (error) {
     console.error("Error creating API key:", error);
-    return Response.json(
-      { error: "Failed to create API key" },
-      { status: 500 }
+    return addCorsHeaders(
+      Response.json({ error: "Failed to create API key" }, { status: 500 })
     );
   }
 }
@@ -55,12 +57,15 @@ export async function GET() {
       },
     });
 
-    return Response.json(apiKeys);
+    return addCorsHeaders(Response.json(apiKeys));
   } catch (error) {
     console.error("Error fetching API keys:", error);
-    return Response.json(
-      { error: "Failed to fetch API keys" },
-      { status: 500 }
+    return addCorsHeaders(
+      Response.json({ error: "Failed to fetch API keys" }, { status: 500 })
     );
   }
+}
+
+export async function OPTIONS() {
+  return handleCorsOptions();
 }

@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server";
 import { prisma } from "@/app/lib/prisma";
 import { authenticateRequest, createErrorResponse } from "@/app/lib/middleware";
+import { addCorsHeaders, handleCorsOptions } from "@/app/lib/cors";
 
 /**
  * @swagger
@@ -73,7 +74,7 @@ import { authenticateRequest, createErrorResponse } from "@/app/lib/middleware";
 export async function GET(request: NextRequest) {
   const apiKeyId = await authenticateRequest(request);
   if (!apiKeyId) {
-    return createErrorResponse("Unauthorized", 401);
+    return addCorsHeaders(createErrorResponse("Unauthorized", 401));
   }
 
   try {
@@ -169,9 +170,15 @@ export async function GET(request: NextRequest) {
       },
     };
 
-    return Response.json(stats);
+    return addCorsHeaders(Response.json(stats));
   } catch (error) {
     console.error("Error fetching stats:", error);
-    return createErrorResponse("Failed to fetch statistics", 500);
+    return addCorsHeaders(
+      createErrorResponse("Failed to fetch statistics", 500)
+    );
   }
+}
+
+export async function OPTIONS() {
+  return handleCorsOptions();
 }

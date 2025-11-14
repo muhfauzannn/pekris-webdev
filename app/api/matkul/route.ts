@@ -1,6 +1,11 @@
 import { NextRequest } from "next/server";
 import { prisma } from "@/app/lib/prisma";
 import { authenticateRequest, createErrorResponse } from "@/app/lib/middleware";
+import {
+  createCorsResponse,
+  handleCorsOptions,
+  addCorsHeaders,
+} from "@/app/lib/cors";
 
 /**
  * @swagger
@@ -36,7 +41,7 @@ import { authenticateRequest, createErrorResponse } from "@/app/lib/middleware";
 export async function GET(request: NextRequest) {
   const apiKeyId = await authenticateRequest(request);
   if (!apiKeyId) {
-    return createErrorResponse("Unauthorized", 401);
+    return addCorsHeaders(createErrorResponse("Unauthorized", 401));
   }
 
   try {
@@ -56,10 +61,12 @@ export async function GET(request: NextRequest) {
       },
     });
 
-    return Response.json(mataKuliah);
+    return addCorsHeaders(Response.json(mataKuliah));
   } catch (error) {
     console.error("Error fetching mata kuliah:", error);
-    return createErrorResponse("Failed to fetch mata kuliah", 500);
+    return addCorsHeaders(
+      createErrorResponse("Failed to fetch mata kuliah", 500)
+    );
   }
 }
 
@@ -124,7 +131,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   const apiKeyId = await authenticateRequest(request);
   if (!apiKeyId) {
-    return createErrorResponse("Unauthorized", 401);
+    return addCorsHeaders(createErrorResponse("Unauthorized", 401));
   }
 
   try {
@@ -132,11 +139,15 @@ export async function POST(request: NextRequest) {
     const { nama, deskripsi, sks } = body;
 
     if (!nama || !sks) {
-      return createErrorResponse("Name and SKS are required", 400);
+      return addCorsHeaders(
+        createErrorResponse("Name and SKS are required", 400)
+      );
     }
 
     if (typeof sks !== "number" || sks <= 0) {
-      return createErrorResponse("SKS must be a positive number", 400);
+      return addCorsHeaders(
+        createErrorResponse("SKS must be a positive number", 400)
+      );
     }
 
     const mataKuliah = await prisma.mataKuliah.create({
@@ -155,9 +166,15 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    return Response.json(mataKuliah, { status: 201 });
+    return addCorsHeaders(Response.json(mataKuliah, { status: 201 }));
   } catch (error) {
     console.error("Error creating mata kuliah:", error);
-    return createErrorResponse("Failed to create mata kuliah", 500);
+    return addCorsHeaders(
+      createErrorResponse("Failed to create mata kuliah", 500)
+    );
   }
+}
+
+export async function OPTIONS() {
+  return handleCorsOptions();
 }

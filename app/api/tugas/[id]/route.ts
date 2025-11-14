@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server";
 import { prisma } from "@/app/lib/prisma";
 import { authenticateRequest, createErrorResponse } from "@/app/lib/middleware";
+import { addCorsHeaders, handleCorsOptions } from "@/app/lib/cors";
 
 /**
  * @swagger
@@ -44,7 +45,7 @@ export async function GET(
 ) {
   const apiKeyId = await authenticateRequest(request);
   if (!apiKeyId) {
-    return createErrorResponse("Unauthorized", 401);
+    return addCorsHeaders(createErrorResponse("Unauthorized", 401));
   }
 
   try {
@@ -66,13 +67,13 @@ export async function GET(
     });
 
     if (!tugas || tugas.mataKuliah.apiKeyId !== apiKeyId) {
-      return createErrorResponse("Tugas not found", 404);
+      return addCorsHeaders(createErrorResponse("Tugas not found", 404));
     }
 
-    return Response.json(tugas);
+    return addCorsHeaders(Response.json(tugas));
   } catch (error) {
     console.error("Error fetching tugas:", error);
-    return createErrorResponse("Failed to fetch tugas", 500);
+    return addCorsHeaders(createErrorResponse("Failed to fetch tugas", 500));
   }
 }
 
@@ -148,7 +149,7 @@ export async function PUT(
 ) {
   const apiKeyId = await authenticateRequest(request);
   if (!apiKeyId) {
-    return createErrorResponse("Unauthorized", 401);
+    return addCorsHeaders(createErrorResponse("Unauthorized", 401));
   }
 
   try {
@@ -157,12 +158,14 @@ export async function PUT(
     const { nama, deskripsi, deadline, status } = body;
 
     if (!nama || !deadline) {
-      return createErrorResponse("Name and deadline are required", 400);
+      return addCorsHeaders(
+        createErrorResponse("Name and deadline are required", 400)
+      );
     }
 
     const validStatuses = ["BELUM_DIKERJAKAN", "DIKERJAKAN", "SELESAI"];
     if (status && !validStatuses.includes(status)) {
-      return createErrorResponse("Invalid status", 400);
+      return addCorsHeaders(createErrorResponse("Invalid status", 400));
     }
 
     // Verify tugas belongs to the API key
@@ -180,7 +183,7 @@ export async function PUT(
     });
 
     if (!existingTugas || existingTugas.mataKuliah.apiKeyId !== apiKeyId) {
-      return createErrorResponse("Tugas not found", 404);
+      return addCorsHeaders(createErrorResponse("Tugas not found", 404));
     }
 
     const updatedTugas = await prisma.tugas.update({
@@ -204,10 +207,10 @@ export async function PUT(
       },
     });
 
-    return Response.json(updatedTugas);
+    return addCorsHeaders(Response.json(updatedTugas));
   } catch (error) {
     console.error("Error updating tugas:", error);
-    return createErrorResponse("Failed to update tugas", 500);
+    return addCorsHeaders(createErrorResponse("Failed to update tugas", 500));
   }
 }
 
@@ -257,7 +260,7 @@ export async function DELETE(
 ) {
   const apiKeyId = await authenticateRequest(request);
   if (!apiKeyId) {
-    return createErrorResponse("Unauthorized", 401);
+    return addCorsHeaders(createErrorResponse("Unauthorized", 401));
   }
 
   try {
@@ -277,7 +280,7 @@ export async function DELETE(
     });
 
     if (!existingTugas || existingTugas.mataKuliah.apiKeyId !== apiKeyId) {
-      return createErrorResponse("Tugas not found", 404);
+      return addCorsHeaders(createErrorResponse("Tugas not found", 404));
     }
 
     await prisma.tugas.delete({
@@ -286,9 +289,15 @@ export async function DELETE(
       },
     });
 
-    return Response.json({ message: "Tugas deleted successfully" });
+    return addCorsHeaders(
+      Response.json({ message: "Tugas deleted successfully" })
+    );
   } catch (error) {
     console.error("Error deleting tugas:", error);
-    return createErrorResponse("Failed to delete tugas", 500);
+    return addCorsHeaders(createErrorResponse("Failed to delete tugas", 500));
   }
+}
+
+export async function OPTIONS() {
+  return handleCorsOptions();
 }

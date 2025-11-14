@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server";
 import { prisma } from "@/app/lib/prisma";
 import { authenticateRequest, createErrorResponse } from "@/app/lib/middleware";
+import { addCorsHeaders, handleCorsOptions } from "@/app/lib/cors";
 
 /**
  * @swagger
@@ -50,7 +51,7 @@ import { authenticateRequest, createErrorResponse } from "@/app/lib/middleware";
 export async function GET(request: NextRequest) {
   const apiKeyId = await authenticateRequest(request);
   if (!apiKeyId) {
-    return createErrorResponse("Unauthorized", 401);
+    return addCorsHeaders(createErrorResponse("Unauthorized", 401));
   }
 
   try {
@@ -89,10 +90,10 @@ export async function GET(request: NextRequest) {
       },
     });
 
-    return Response.json(tugas);
+    return addCorsHeaders(Response.json(tugas));
   } catch (error) {
     console.error("Error fetching tugas:", error);
-    return createErrorResponse("Failed to fetch tugas", 500);
+    return addCorsHeaders(createErrorResponse("Failed to fetch tugas", 500));
   }
 }
 
@@ -172,7 +173,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   const apiKeyId = await authenticateRequest(request);
   if (!apiKeyId) {
-    return createErrorResponse("Unauthorized", 401);
+    return addCorsHeaders(createErrorResponse("Unauthorized", 401));
   }
 
   try {
@@ -180,9 +181,11 @@ export async function POST(request: NextRequest) {
     const { nama, deskripsi, mataKuliahId, deadline, status } = body;
 
     if (!nama || !mataKuliahId || !deadline) {
-      return createErrorResponse(
-        "Name, mata kuliah ID, and deadline are required",
-        400
+      return addCorsHeaders(
+        createErrorResponse(
+          "Name, mata kuliah ID, and deadline are required",
+          400
+        )
       );
     }
 
@@ -195,12 +198,12 @@ export async function POST(request: NextRequest) {
     });
 
     if (!mataKuliah) {
-      return createErrorResponse("Mata kuliah not found", 404);
+      return addCorsHeaders(createErrorResponse("Mata kuliah not found", 404));
     }
 
     const validStatuses = ["BELUM_DIKERJAKAN", "DIKERJAKAN", "SELESAI"];
     if (status && !validStatuses.includes(status)) {
-      return createErrorResponse("Invalid status", 400);
+      return addCorsHeaders(createErrorResponse("Invalid status", 400));
     }
 
     const tugas = await prisma.tugas.create({
@@ -222,9 +225,13 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    return Response.json(tugas, { status: 201 });
+    return addCorsHeaders(Response.json(tugas, { status: 201 }));
   } catch (error) {
     console.error("Error creating tugas:", error);
-    return createErrorResponse("Failed to create tugas", 500);
+    return addCorsHeaders(createErrorResponse("Failed to create tugas", 500));
   }
+}
+
+export async function OPTIONS() {
+  return handleCorsOptions();
 }
